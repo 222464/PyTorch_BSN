@@ -6,6 +6,8 @@ from bsn.pytorch_bsn import BSN
 import numpy as np
 import lycon
 
+# Server run: xvfb-run -s "-screen 0 1400x900x24" python3 pytorch_bsn_pong.py
+
 imageSize = ( 84, 84 )
 
 env = gym.make('Pong-v0')
@@ -48,7 +50,7 @@ for episode in range(episodeCount):
 
         for t in range(1000):
             env.render()
-            
+
             obs = obs.astype(dtype=np.float32) / 255.0
 
             obs = obs[maxSize // 2 - minSize // 2 : maxSize // 2 + minSize // 2, :, :]

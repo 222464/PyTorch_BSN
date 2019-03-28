@@ -2,23 +2,25 @@ import torch
 import torch.nn
 
 class BSN:
-    def __init__(self, module, resolution=64, reward_dist=0.001, dtype=torch.float):
+    def __init__(self, module, resolution=64, reward_dist=0.001, dtype=torch.float, device=torch.device('cpu')):
         self.module = module
         self.resolution = resolution
+
+        self.device = device
 
         self.params = filter(lambda p: p.requires_grad, self.module.parameters())
         self.num_params = sum(p.numel() for p in self.module.parameters() if p.requires_grad)
 
-        self.rewards = torch.randn(self.num_params * self.resolution, dtype=dtype) * reward_dist
-        self.indices = torch.randint(low=0, high=self.resolution, size=(self.num_params,), dtype=torch.long)
-        self.offsets = torch.tensor([ i * self.resolution for i in range(self.num_params) ], dtype=torch.long)
+        self.rewards = torch.randn(self.num_params * self.resolution, dtype=dtype, device=self.device) * reward_dist
+        self.indices = torch.randint(low=0, high=self.resolution, size=(self.num_params,), dtype=torch.long, device=self.device)
+        self.offsets = torch.tensor([ i * self.resolution for i in range(self.num_params) ], dtype=torch.long, device=self.device)
 
     def step(self, reward, act_scalar=4.0, alpha=0.001, epsilon=0.3):
         # Update rewards
         self.rewards[self.offsets + self.indices] += alpha * (reward - self.rewards[self.offsets + self.indices])
         
         # Find new indices
-        self.indices = (torch.argmax(self.rewards.reshape((self.num_params, self.resolution)), dim=1).float() + torch.randn(self.num_params) * epsilon + 0.5).long().clamp(min=0, max=self.resolution - 1)
+        self.indices = (torch.argmax(self.rewards.reshape((self.num_params, self.resolution)), dim=1).float() + torch.randn(self.num_params, device=self.device) * epsilon + 0.5).long().clamp(min=0, max=self.resolution - 1)
 
         # Generate new parameters
         start_index = 0
