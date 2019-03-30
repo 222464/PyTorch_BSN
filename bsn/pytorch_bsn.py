@@ -15,7 +15,7 @@ class BSN:
         self.indices = torch.randint(low=0, high=self.resolution, size=(self.num_params,), dtype=torch.long, device=self.device)
         self.offsets = torch.tensor([ i * self.resolution for i in range(self.num_params) ], dtype=torch.long, device=self.device)
 
-    def step(self, reward, act_scalar=4.0, alpha=0.001, epsilon=0.3):
+    def step(self, reward, act_scalar=0.5, alpha=0.001, epsilon=0.3):
         # Update rewards
         self.rewards[self.offsets + self.indices] += alpha * (reward - self.rewards[self.offsets + self.indices])
         
