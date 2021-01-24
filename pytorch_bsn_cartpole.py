@@ -20,7 +20,7 @@ class Net(torch.nn.Module):
 
         return x
 
-env = gym.make('CartPole-v0')
+env = gym.make('CartPole-v1')
 
 model = Net()
 
@@ -37,7 +37,7 @@ for episode in range(episodeCount):
 
         for t in range(1000):
             model_bsn.step(reward)
-            action = model(torch.tensor([[[list(obs)]]]))
+            action = model(torch.tensor([[[list(obs)]]], dtype=torch.float))
 
             if action > 0.0:
                 action = 1
