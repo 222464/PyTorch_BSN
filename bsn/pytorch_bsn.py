@@ -2,7 +2,7 @@ import torch
 import torch.nn
 
 class BSN:
-    def __init__(self, module, resolution=64, reward_dist=0.001, dtype=torch.float, device=torch.device('cpu')):
+    def __init__(self, module, resolution=32, reward_dist=0.001, dtype=torch.float, device='cpu'):
         self.module = module
         self.resolution = resolution
 
@@ -15,7 +15,7 @@ class BSN:
         self.indices = torch.randint(low=0, high=self.resolution, size=(self.num_params,), dtype=torch.long, device=self.device)
         self.offsets = torch.tensor([ i * self.resolution for i in range(self.num_params) ], dtype=torch.long, device=self.device)
 
-    def step(self, reward, act_scalar=0.5, alpha=0.001, epsilon=0.3):
+    def step(self, reward, act_scalar=1.0, alpha=0.001, epsilon=0.2):
         # Update rewards
         self.rewards[self.offsets + self.indices] += alpha * (reward - self.rewards[self.offsets + self.indices])
         
